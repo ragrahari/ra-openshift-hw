@@ -1,0 +1,17 @@
+Step 1: cleanup
+	cleanup.sh ra
+
+Step 2: setup all projects
+	setup_projects.sh ra ragrahari
+
+Step 3: setup Nexus
+
+Step 4: setup Jenkins
+
+Step 5: setup SonarQube
+
+Step :
+Step :
+Step :
+Step :
+Step :
