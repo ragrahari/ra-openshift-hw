@@ -35,4 +35,4 @@ oc patch dc sonarqube --patch='{ "spec": { "strategy": { "type": "Recreate" }}}'
 oc set probe dc/sonarqube --liveness --failure-threshold 3 --initial-delay-seconds 40 -- echo ok
 oc set probe dc/sonarqube --readiness --failure-threshold 3 --initial-delay-seconds 20 --get-url= http://:9000/about
 # Expose the service
-oc expose svc sonarqube
+oc rollout resume dc sonarqube
