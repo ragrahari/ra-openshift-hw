@@ -3,6 +3,8 @@
 if [ "$#" -ne 1 ]; then
     echo "Usage:"
     echo "  $0 GUID"
+	echo " example: cleanup.sh ra"
+	sleep 3
     exit 1
 fi
 

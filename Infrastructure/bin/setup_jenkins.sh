@@ -4,6 +4,7 @@ if [ "$#" -ne 3 ]; then
     echo "Usage:"
     echo "  $0 GUID REPO CLUSTER"
     echo "  Example: $0 wkha https://github.com/wkulhanek/ParksMap na39.openshift.opentlc.com"
+	sleep 5
     exit 1
 fi
 
@@ -26,4 +27,12 @@ echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cl
 # * GUID: the GUID used in all the projects
 # * CLUSTER: the base url of the cluster used (e.g. na39.openshift.opentlc.com)
 
-# To be Implemented by Student
+### TO TEST ###
+
+oc project ${GUID}-jenkins
+# Create persistent volume
+oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=2Gi --param VOLUME_CAPACITY=4Gi
+## Moving image to Openshift registry.
+## NOTE: if this image was not created during the lab, set it up before doing following
+skopeo copy --dest-tls-verify=false --dest-creds=admin:admin123
+docker://docker-registry-default.apps.dfw2.example.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9 docker://$(oc get route nexus-registry -n ${GUID}-nexus --template='{{ .spec.host}}')/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9

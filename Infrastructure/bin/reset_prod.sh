@@ -17,4 +17,5 @@ echo "Resetting Parks Production Environment in project ${GUID}-parks-prod to Gr
 # up the whole infrastructure to guarantee a Blue
 # rollout followed by a Green rollout.
 
-# To be Implemented by Student
+### TO TEST ###
+
