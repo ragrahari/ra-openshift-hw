@@ -42,10 +42,10 @@ oc expose svc nexus3
 oc rollout pause deploymentconfig nexus3
 # Setup "Recreate" deployment strategy and configure resource limits
 echo "configuring Nexus"
-oc patch deploymentconfig/nexus3 --patch=’{ “spec”: { “strategy”: { “type”: “Recreate” }}}’
-oc set resources deploymentconfig/nexus3 --limits=2Gi --requests=memory=1Gi
+oc patch deploymentconfig/nexus3 --patch='{"spec":{"strategy":{"type":"Recreate"}}}'
+oc set resource deploymentconfig/nexus3 --limits=memory=2Gi --requests=memory=1Gi
 # Use yaml file to create persistent volume and mount it at /nexus-data
-oc create -f ../templates/nexus_pvc.yaml
+oc create -f ../templates/pvc-nexus.yaml
 oc set volume deploymentconfig/nexus3
 oc set volume deploymentconfig/nexus3 --add --overwrite --name=nexus3-volume-1 --mount-path=/nexus-data/ --type persistentVolumeClaim --claim-name=nexus-pvc
 # Set liveness and readiness probe
