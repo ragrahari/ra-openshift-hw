@@ -36,10 +36,12 @@ echo "Setting up Nexus in project $GUID-nexus"
 oc project ${GUID}-nexus
 # Create the service using nexus3 image and expose the service
 ##oc new-app sonatype/nexus3:latest
+echo "building new app using docker image"
 oc new-app docker.io/sonatype/nexus3:latest
 oc expose svc nexus3
 oc rollout pause deploymentconfig nexus3
 # Setup "Recreate" deployment strategy and configure resource limits
+echo "configuring Nexus"
 oc patch deploymentconfig/nexus3 --patch=’{ “spec”: { “strategy”: { “type”: “Recreate” }}}’
 oc set resources deploymentconfig/nexus3 --limits=2Gi --requests=memory=1Gi
 # Use yaml file to create persistent volume and mount it at /nexus-data
@@ -50,9 +52,10 @@ oc set volume deploymentconfig/nexus3 --add --overwrite --name=nexus3-volume-1 -
 oc set probe deploymentconfig/nexus3 --liveness --failure-threshold 3 --initial-delay-seconds 300 -- echo ok
 oc set probe deploymentconfig/nexus3 --readiness --failure-threshold 3 --initial-delay-seconds 300 --get-url= http://:8081/repository/maven-public/
 # Expose the container registry
+echo "exposing Nexus container"
 oc expose deploymentconfig nexus3 --port=5000 --name=nexus-registry
 oc create route edge nexus-registry --service=nexus-registry --port=5000
-
+echo "Done!"
 
 ## The following commands use script given in lab to set up Nexus repositories and user
 #curl -o setup_nexus3.sh -s
