@@ -43,7 +43,7 @@ oc rollout pause deploymentconfig nexus3
 # Setup "Recreate" deployment strategy and configure resource limits
 echo "configuring Nexus"
 oc patch deploymentconfig/nexus3 --patch='{"spec":{"strategy":{"type":"Recreate"}}}'
-oc set resource deploymentconfig/nexus3 --limits=memory=2Gi --requests=memory=1Gi
+oc set resources deploymentconfig/nexus3 --limits=memory=2Gi --requests=memory=1Gi
 # Use yaml file to create persistent volume and mount it at /nexus-data
 oc create -f ../templates/pvc-nexus.yaml
 oc set volume deploymentconfig/nexus3
@@ -59,7 +59,7 @@ oc rollout resume deploymentconfig nexus3
 echo "Done!"
 
 ## Once Nexus is deployed, following script can be used to setup the Nexus repository
-#curl -o setup_nexus3.sh -s https://raw.githubusercontent.com/wkulhanek/ocp_advanced_development_resources/master/nexus/setup_nexus3.sh
-#chmod +x setup_nexus3.sh
-#./setup_nexus3.sh admin admin123 http://$(oc get route nexus3 --template='{{ .spec.host }}')
-#rm setup_nexus3.sh
+curl -o setup_nexus3.sh -s https://raw.githubusercontent.com/wkulhanek/ocp_advanced_development_resources/master/nexus/setup_nexus3.sh
+chmod +x setup_nexus3.sh
+./setup_nexus3.sh admin admin123 http://$(oc get route nexus3 --template='{{ .spec.host }}')
+rm setup_nexus3.sh

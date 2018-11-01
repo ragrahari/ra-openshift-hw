@@ -1,14 +1,23 @@
+GUID=400a
+USER=ragrahari-crossvale.com
+
 Step 1: cleanup
-	cleanup.sh ra
+	./cleanup.sh ${GUID}
 
 Step 2: setup all projects
-	setup_projects.sh ra ragrahari
+	./setup_projects.sh ${GUID} ${USER}
 
 Step 3: setup Nexus
-
-Step 4: setup Jenkins
+	./setup_nexus.sh ${GUID}
 
 Step 5: setup SonarQube
+	./setup_sonar.sh ${GUID}
+
+Step 5: setup Jenkins
+sudo docker build . -t docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
+
+./setup_jenkins.sh ${GUID} https://github.com/ragrahari/ra-openshift-hw.git na39.openshift.opentlc.com
+
 
 Step :
 Step :

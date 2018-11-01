@@ -34,5 +34,4 @@ oc project ${GUID}-jenkins
 oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=2Gi --param VOLUME_CAPACITY=4Gi
 ## Moving image to Openshift registry.
 ## NOTE: if this image was not created during the lab, set it up before doing following
-skopeo copy --dest-tls-verify=false --dest-creds=admin:admin123
-docker://docker-registry-default.apps.dfw2.example.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9 docker://$(oc get route nexus-registry -n ${GUID}-nexus --template='{{ .spec.host}}')/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
+#skopeo copy --dest-tls-verify=false --dest-creds=admin:admin123 docker://docker-registry-default.master.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9 docker://$(oc get route nexus-registry -n ${GUID}-nexus --template='{{ .spec.host}}')/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
