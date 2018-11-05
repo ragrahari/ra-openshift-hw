@@ -1,18 +1,19 @@
+#!groovy
 // Jenkinsfile for MLBParks
 podTemplate(
-  label: "skopeo-pod",
+  label: "maven-appdev",
   cloud: "openshift",
   inheritFrom: "maven",
   containers: [
     containerTemplate(
       name: "jnlp",
-      image: "docker-registry.default.svc:5000/${GUID}-jenkins/jenkins-slave-appdev",
+      image: "docker-registry.default.svc:5000/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9",
       resourceRequestMemory: "1Gi",
       resourceLimitMemory: "2Gi"
     )
   ]
 ) {
-  node('skopeo-pod') {
+  node('maven-appdev') {
     echo "GUID: ${GUID}"
     echo "CLUSTER: ${CLUSTER}"
 
@@ -20,7 +21,43 @@ podTemplate(
     // You need to build the application in directory `MLBParks`.
     // Also copy "../nexus_settings.xml" to your build directory
     // and replace 'GUID' in the file with your ${GUID} to point to >your< Nexus instance
- 
+	
+	def mvnCmd = "mvn -s ./nexus_openshift_settings.xml"
+	
+	stage('Checkout Source') {
+		git credentialsId: 'a4a519c2-831f-4b37-b3dc-1b60f8626eae', url: 'https://github.com/ragrahari/ra-openshift-hw.git'
+	}
+	
+	echo 'completed checkout'
+	
+	// Extract version and other properties from the pom.xml
+	def groupId    = getGroupIdFromPom("pom.xml")
+	def artifactId = getArtifactIdFromPom("pom.xml")
+	def version    = getVersionFromPom("pom.xml")
+	
+	echo 'extracted version from pom files'
+	
+	// Set the tag for the development image: version + build number
+	def devTag  = "${version}-${BUILD_NUMBER}"
+	// Set the tag for the production image: version
+	def prodTag = "${version}"
+	
+	echo 'completed setting tag for development images'
+	
+	// Using Maven build the war file
+	// Do not run tests in this step
+	stage('Build war') {
+		echo "Building version ${version}"
+		sh "${mvnCmd} clean package -Dmaven.test.skip=true"
+	}
+	
+	// Using Maven run the unit tests
+	stage('Unit Tests') {
+		echo "Running Unit Tests"
+		sh "${mvnCmd} test"
+	}
+	
+	
   }
 }
 
