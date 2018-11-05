@@ -90,6 +90,28 @@ podTemplate(
        openshiftVerifyService namespace: '400a-parks-dev', svcName: "${subdir}", verbose: 'false'
    }
 
+   // Run Integration Tests in the Development Environment.
+   stage('Integration Tests') {
+        sh '#!/bin/bash
+               set -B                  # enable brace expansion
+               failed=1
+               connection_url=$(oc get route parksmap -n 400a-parks-dev --template='{{ .spec.host }}')
+               echo "Attempt connection to $connection_url"
+               for i in {1..5}; do
+                   echo "Attempt# $i to connect"
+                   if [ $( curl -s -o /dev/null -w ''%{http_code}'' "$connection_url"/ws/healthz/ ) == 200 ]; then
+                       echo "Successfully connected!"
+                       failed=0
+                       break
+                   fi
+                   sleep 5
+               done
+               if [ $failed -eq 1 ]; then
+                   exit -1
+               fi
+        '
+   }
+
   }
 }
 
