@@ -14,10 +14,21 @@ Step 5: setup SonarQube
 	./setup_sonar.sh ${GUID}
 
 Step 5: setup Jenkins
-sudo docker build . -t docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
-
+# 5.1 setup jenkins app
 ./setup_jenkins.sh ${GUID} https://github.com/ragrahari/ra-openshift-hw.git na39.openshift.opentlc.com
 
+# 5.2 Add insecure-registries
+
+# 5.3 build jenkins maven slave pod
+sudo docker build . -t docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
+
+## To add insecure registry: updated /etc/docker/daemon.json
+## sudo systemctl daemon-reload
+## sudo systemctl restart docker
+
+sudo docker login -u ragrahari-crossvale.com -p $(oc whoami -t) docker-registry-default.apps.na39.openshift.opentlc.com
+
+sudo docker push docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
 
 Step :
 Step :
