@@ -60,7 +60,18 @@ podTemplate(
 		sh "${mvnCmd} test"
 	}
 	
-	
+	// Using Maven call SonarQube for Code Analysis
+	stage('Code Analysis') {
+		echo "Running Code Analysis"
+		sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube-400a-sonarqube.apps.na39.openshift.opentlc.com -Dsonar.projectName=${JOB_BASE_NAME}-${devTag}"
+
+   }
+
+   // Publish the built war file to Nexus
+   stage('Publish to Nexus') {
+       echo "Publish to Nexus"
+       sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3-400a-nexus.apps.na39.openshift.opentlc.com/repository/releases"
+   }
   }
 }
 
