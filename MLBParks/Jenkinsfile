@@ -92,7 +92,7 @@ podTemplate(
 
    // Run Integration Tests in the Development Environment.
    stage('Integration Tests') {
-        sh '#!/bin/bash
+        sh '''#!/bin/bash
                set -B                  # enable brace expansion
                failed=1
                connection_url=$(oc get route parksmap -n 400a-parks-dev --template='{{ .spec.host }}')
@@ -109,7 +109,7 @@ podTemplate(
                if [ $failed -eq 1 ]; then
                    exit -1
                fi
-        '
+        '''
    }
 
   }
