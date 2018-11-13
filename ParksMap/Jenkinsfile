@@ -23,7 +23,7 @@ podTemplate(
 
     def subdir = "ParksMap"
     def pomLocation = "${subdir}/pom.xml"
-    def mvnCmd = "mvn -s ./nexus_openshift_settings.xml -f ${pomLocation}"
+    def mvnCmd = "mvn -s ./nexus_openshift_settings.xml clean package spring-boot:repackage -DskipTests -Dcom.redhat.xpaas.repo.redhatga -f ${pomLocation}"
     
     stage('Checkout Source') {
         git credentialsId: 'a4a519c2-831f-4b37-b3dc-1b60f8626eae',
@@ -75,7 +75,7 @@ podTemplate(
   // Build the OpenShift Image in OpenShift and tag it.
   stage('Build and Tag OpenShift Image') {
       echo "Building OpenShift container image tasks:${devTag}"
-      sh "oc start-build ${artifactId} --from-file=http://nexus3-${GUID}-nexus.apps.na39.openshift.opentlc.com/repository/releases/com/openshift/evg/roadshow/${artifactId}/${version}/${artifactId}-${version}.war --follow -n ${GUID}-parks-dev"
+      sh "oc start-build ${artifactId} --from-file=http://nexus3-${GUID}-nexus.apps.na39.openshift.opentlc.com/repository/releases/com/openshift/evg/roadshow/${artifactId}/${version}/${artifactId}-${version}.jar --follow -n ${GUID}-parks-dev"
       openshiftTag alias: 'false', destStream: "${artifactId}", destTag: devTag, destinationNamespace: '${GUID}-parks-dev', namespace: '${GUID}-parks-dev', srcStream: "${artifactId}", srcTag: 'latest', verbose: 'false'
   }
 
