@@ -63,31 +63,31 @@ podTemplate(
 	// Using Maven call SonarQube for Code Analysis
 	stage('Code Analysis') {
 		echo "Running Code Analysis"
-		sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube-400a-sonarqube.apps.na39.openshift.opentlc.com -Dsonar.projectName=${JOB_BASE_NAME}-${devTag}"
+		sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube-${GUID}-sonarqube.apps.na39.openshift.opentlc.com -Dsonar.projectName=${JOB_BASE_NAME}-${devTag}"
 
    }
 
    // Publish the built war file to Nexus
    stage('Publish to Nexus') {
        echo "Publish to Nexus"
-       sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3-400a-nexus.apps.na39.openshift.opentlc.com/repository/releases"
+       sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3-${GUID}-nexus.apps.na39.openshift.opentlc.com/repository/releases"
    }
 
    // Build the OpenShift Image in OpenShift and tag it.
    stage('Build and Tag OpenShift Image') {
        echo "Building OpenShift container image tasks:${devTag}"
-       sh "oc start-build ${artifactId} --from-file=http://nexus3-400a-nexus.apps.na39.openshift.opentlc.com/repository/releases/com/openshift/evg/roadshow/${artifactId}/${version}/${artifactId}-${version}.war --follow -n 400a-parks-dev"
-       openshiftTag alias: 'false', destStream: "${artifactId}", destTag: devTag, destinationNamespace: '400a-parks-dev', namespace: '400a-parks-dev', srcStream: "${artifactId}", srcTag: 'latest', verbose: 'false'
+       sh "oc start-build ${artifactId} --from-file=http://nexus3-${GUID}-nexus.apps.na39.openshift.opentlc.com/repository/releases/com/openshift/evg/roadshow/${artifactId}/${version}/${artifactId}-${version}.war --follow -n ${GUID}-parks-dev"
+       openshiftTag alias: 'false', destStream: "${artifactId}", destTag: devTag, destinationNamespace: '${GUID}-parks-dev', namespace: '${GUID}-parks-dev', srcStream: "${artifactId}", srcTag: 'latest', verbose: 'false'
    }
 
 
    // Deploy the built image to the Development Environment.
    stage('Deploy to Dev') {
        echo "Deploying container image to Development Project"
-       sh "oc set image dc/${artifactId} ${artifactId}=docker-registry.default.svc:5000/400a-parks-dev/${artifactId}/${artifactId}:${devTag} -n 400a-parks-dev"
-       openshiftDeploy depCfg: "${artifactId}", namespace: '400a-parks-dev', verbose: 'false', waitTime: '', waitUnit: 'sec'
-       openshiftVerifyDeployment depCfg: "${artifactId}", namespace: '400a-parks-dev', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
-       openshiftVerifyService namespace: '400a-parks-dev', svcName: "${artifactId}", verbose: 'false'
+       sh "oc set image dc/${artifactId} ${artifactId}=docker-registry.default.svc:5000/${GUID}-parks-dev/${artifactId}/${artifactId}:${devTag} -n ${GUID}-parks-dev"
+       openshiftDeploy depCfg: "${artifactId}", namespace: '${GUID}-parks-dev', verbose: 'false', waitTime: '', waitUnit: 'sec'
+       openshiftVerifyDeployment depCfg: "${artifactId}", namespace: '${GUID}-parks-dev', replicaCount: '1', verbose: 'false', verifyReplicaCount: 'false', waitTime: '', waitUnit: 'sec'
+       openshiftVerifyService namespace: '${GUID}-parks-dev', svcName: "${artifactId}", verbose: 'false'
    }
 
    // Run Integration Tests in the Development Environment.
@@ -95,7 +95,7 @@ podTemplate(
         sh '''#!/bin/bash
                set -B                  # enable brace expansion
                failed=1
-               connection_url=$(oc get route parksmap -n 400a-parks-dev --template='{{ .spec.host }}')
+               connection_url=$(oc get route parksmap -n ${GUID}-parks-dev --template='{{ .spec.host }}')
                echo "Attempt connection to $connection_url"
                for i in {1..5}; do
                    echo "Attempt# $i to connect"
@@ -115,10 +115,10 @@ podTemplate(
    // Copy Image to Nexus Docker Registry
    stage('Copy Image to Nexus Docker Registry') {
        echo "Copy image to Nexus Docker Registry"
-       sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:admin123 docker://docker-registry.default.svc:5000/400a-parks-dev/${artifactId}:${devTag} docker://nexus-registry-400a-nexus.apps.na39.openshift.opentlc.com:5000/${artifactId}:${devTag}"
+       sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:admin123 docker://docker-registry.default.svc:5000/${GUID}-parks-dev/${artifactId}:${devTag} docker://nexus-registry-${GUID}-nexus.apps.na39.openshift.opentlc.com:5000/${artifactId}:${devTag}"
 
        // Tag the built image with the production tag.
-       openshiftTag alias: 'false', destStream: "${artifactId}", destTag: prodTag, destinationNamespace: '400a-parks-dev', namespace: '400a-parks-dev', srcStream: "${artifactId}", srcTag: devTag, verbose: 'false'
+       openshiftTag alias: 'false', destStream: "${artifactId}", destTag: prodTag, destinationNamespace: '${GUID}-parks-dev', namespace: '${GUID}-parks-dev', srcStream: "${artifactId}", srcTag: devTag, verbose: 'false'
    }
 
   }
