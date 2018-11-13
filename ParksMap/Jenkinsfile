@@ -23,7 +23,7 @@ podTemplate(
 
     def subdir = "ParksMap"
     def pomLocation = "${subdir}/pom.xml"
-    def mvnCmd = "mvn -s ./nexus_openshift_settings.xml clean package spring-boot:repackage -DskipTests -Dcom.redhat.xpaas.repo.redhatga -f ${pomLocation}"
+    def mvnCmd = "mvn -s ./nexus_openshift_settings.xml -f ${pomLocation}"
     
     stage('Checkout Source') {
         git credentialsId: 'a4a519c2-831f-4b37-b3dc-1b60f8626eae',
@@ -50,7 +50,7 @@ podTemplate(
     // Do not run tests in this step
     stage('Build war') {
         echo "Building version ${version}"
-        sh "${mvnCmd} clean package -Dmaven.test.skip=true"
+        sh "${mvnCmd} clean package spring-boot:repackage -DskipTests -Dcom.redhat.xpaas.repo.redhatga"
     }
     
     // Using Maven run the unit tests
