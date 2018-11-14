@@ -21,9 +21,10 @@ oc new-app ${GUID}-parks-dev/mlbparks:0.0-0 --name=mlbparks --allow-missing-imag
 oc create configmap mlbparks-config \
  --from-literal=DB_HOST=mongodb \
  --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=dev \
- --from-literal=DB_PASSWORD=dev \
- --from-literal=DB_NAME=dev \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_NAME=parks \
+ --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="MLB Parks (Dev)" \
  -n ${GUID}-parks-dev
 oc set env --from=configmap/mlbparks-config dc/mlbparks
@@ -42,9 +43,10 @@ oc new-app ${GUID}-parks-dev/nationalparks:0.0-0 --name=nationalparks --allow-mi
 oc create configmap nationalparks-config \
  --from-literal=DB_HOST=mongodb \
  --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=dev \
- --from-literal=DB_PASSWORD=dev \
- --from-literal=DB_NAME=dev \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_NAME=parks \
+ --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="National Parks (Dev)" \
  -n ${GUID}-parks-dev
 oc set env --from=configmap/nationalparks-config dc/nationalparks
@@ -63,9 +65,10 @@ oc new-app ${GUID}-parks-dev/parksmap:0.0-0 --name=parksmap --allow-missing-imag
 oc create configmap parksmap-config \
  --from-literal=DB_HOST=mongodb \
  --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=dev \
- --from-literal=DB_PASSWORD=dev \
- --from-literal=DB_NAME=dev \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_NAME=parks \
+ --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="ParksMap (Dev)" \
  -n ${GUID}-parks-dev
 oc set env --from=configmap/parksmap-config dc/parksmap

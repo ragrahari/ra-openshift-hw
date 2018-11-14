@@ -31,9 +31,9 @@ oc policy add-role-to-user view --serviceaccount=default
 oc create configmap mlbparks-green-config \
  --from-literal=DB_HOST=mongodb \
  --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=prod \
- --from-literal=DB_PASSWORD=prod \
- --from-literal=DB_NAME=mongodb \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_NAME=parks \
  --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="MLB Parks (Green)" \
  -n ${GUID}-parks-prod
@@ -41,9 +41,9 @@ oc create configmap mlbparks-green-config \
 oc create configmap mlbparks-blue-config \
  --from-literal=DB_HOST=mongodb \
  --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=prod \
- --from-literal=DB_PASSWORD=prod \
- --from-literal=DB_NAME=mongodb \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_NAME=parks \
  --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="MLB Parks (Blue)" \
  -n ${GUID}-parks-prod
@@ -70,9 +70,9 @@ oc set probe dc/mlbparks-blue --liveness --failure-threshold 3 --initial-delay-s
 oc create configmap nationalparks-green-config \
  --from-literal=DB_HOST=mongodb \
  --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=prod \
- --from-literal=DB_PASSWORD=prod \
- --from-literal=DB_NAME=mongodb \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_NAME=parks \
  --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="National Parks (Green)" \
  -n ${GUID}-parks-prod
@@ -80,9 +80,9 @@ oc create configmap nationalparks-green-config \
 oc create configmap nationalparks-blue-config \
  --from-literal=DB_HOST=mongodb \
  --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=prod \
- --from-literal=DB_PASSWORD=prod \
- --from-literal=DB_NAME=mongodb \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_NAME=parks \
  --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="National Parks (Blue)" \
  -n ${GUID}-parks-prod
