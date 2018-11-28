@@ -17,5 +17,13 @@ echo "Resetting Parks Production Environment in project ${GUID}-parks-prod to Gr
 # up the whole infrastructure to guarantee a Blue
 # rollout followed by a Green rollout.
 
-### TO TEST ###
+# Set route to Green Service
+# MLBParks
+oc patch route mlbparks -n ${GUID}-parks-prod -p '{"spec":{"to":{"name":"mlbparks-green"}}}'
+# Nationalparks
+oc patch route nationalparks -n ${GUID}-parks-prod -p '{"spec":{"to":{"name":"nationalparks-green"}}}'
+# Parksmap
+oc patch route parksmap -n ${GUID}-parks-prod -p '{"spec":{"to":{"name":"parksmap-green"}}}'
 
+# Add echo statement so that the script succeeds even if the patch didn't do anything
+echo "Updated"
