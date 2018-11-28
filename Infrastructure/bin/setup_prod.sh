@@ -17,6 +17,7 @@ oc project ${GUID}-parks-prod
 oc policy add-role-to-group system:image-puller system:serviceaccounts:${GUID}-parks-prod -n ${GUID}-parks-dev
 # Grant the correct permissions to the Jenkins service account
 oc policy add-role-to-user edit system:serviceaccount:${GUID}-jenkins:jenkins -n ${GUID}-parks-prod
+oc policy add-role-to-user edit system:serviceaccount:gpte-jenkins:jenkins -n ${GUID}-parks-prod
 # create headless MongoDB service
 oc create -f ../templates/mongodb_internal.yaml
 # create regular MongoDB service
