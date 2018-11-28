@@ -21,45 +21,46 @@ podTemplate(
     // You need to build the application in directory `MLBParks`.
     // Also copy "../nexus_settings.xml" to your build directory
     // and replace 'GUID' in the file with your ${GUID} to point to >your< Nexus instance
-
+	
 	def subdir = "MLBParks"
 	def pomLocation = "${subdir}/pom.xml"
 	def mvnCmd = "mvn -s ./nexus_openshift_settings.xml -f ${pomLocation}"
-
+	
 	stage('Checkout Source') {
 		git credentialsId: 'a4a519c2-831f-4b37-b3dc-1b60f8626eae',
 		url: 'https://github.com/ragrahari/ra-openshift-hw.git'
 	}
-
+	
 	echo 'completed checkout'
-
+	
 	// Extract version and other properties from the pom.xml
 	def groupId    = getGroupIdFromPom("${pomLocation}")
 	def artifactId = getArtifactIdFromPom("${pomLocation}")
 	def version    = getVersionFromPom("${pomLocation}")
-
+	
 	echo 'extracted version from pom files'
-
+	
 	// Set the tag for the development image: version + build number
 	def devTag  = "${version}-${BUILD_NUMBER}"
+	//def devTag  = "1.0-4"
 	// Set the tag for the production image: version
 	def prodTag = "${version}"
-
+	
 	echo 'completed setting tag for development images'
-
+	
 	// Using Maven build the war file
 	// Do not run tests in this step
 	stage('Build war') {
 		echo "Building version ${version}"
 		sh "${mvnCmd} clean package -Dmaven.test.skip=true"
 	}
-
+	
 	// Using Maven run the unit tests
 	stage('Unit Tests') {
 		echo "Running Unit Tests"
 		sh "${mvnCmd} test"
 	}
-
+	
 	// Using Maven call SonarQube for Code Analysis
 	stage('Code Analysis') {
 		echo "Running Code Analysis"
@@ -121,7 +122,7 @@ podTemplate(
        openshiftTag alias: 'false', destStream: "${artifactId}", destTag: prodTag, destinationNamespace: '${GUID}-parks-dev', namespace: '${GUID}-parks-dev', srcStream: "${artifactId}", srcTag: devTag, verbose: 'false'
    }
 
-   // Blue/Green Deployment into Production
+    // Blue/Green Deployment into Production
    // -------------------------------------
    // Do not activate the new version yet.
    def destApp   = "mlbparks-green"
@@ -155,8 +156,10 @@ podTemplate(
 
      echo "Switching Production application to ${destApp}."
      sh 'oc patch route mlbparks -n ${GUID}-parks-prod -p \'{"spec":{"to":{"name":"' + destApp + '"}}}\''
+     
+     echo "Switched to the new version"
    }
-
+   
   }
 }
 

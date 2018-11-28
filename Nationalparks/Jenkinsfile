@@ -155,6 +155,8 @@ podTemplate(
 
      echo "Switching Production application to ${destApp}."
      sh 'oc patch route nationalparks -n ${GUID}-parks-prod -p \'{"spec":{"to":{"name":"' + destApp + '"}}}\''
+     
+     echo "Switched to the new version"
    }
 
   }
