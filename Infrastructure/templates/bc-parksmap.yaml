@@ -1,0 +1,11 @@
+kind: "BuildConfig"
+apiVersion: "v1"
+metadata:
+  name: "parksmap-pipeline"
+spec:
+  source:
+    git:
+      uri: "https://github.com/thednd1992/adv-homework_template.git"
+  strategy:
+    jenkinsPipelineStrategy:
+      jenkinsfilePath: ParksMap/Jenkinsfile

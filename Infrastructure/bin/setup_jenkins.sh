@@ -39,3 +39,43 @@ oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=2Gi
 #sudo docker login -u ragrahari-crossvale.com -p $(oc whoami -t) docker-registry-default.apps.na39.openshift.opentlc.com
 
 #sudo docker push docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
+
+# wait while jenkins is ready
+while : ; do
+    echo "Checking if Jenkins is Ready..."
+    oc get pod -n ${GUID}-jenkins | grep -v deploy | grep "1/1"
+    if [ $? == "1" ] 
+      then 
+      echo "Waiting 10 seconds..."
+        sleep 10
+      else 
+        break 
+    fi
+done
+
+# build the jenkins slave pod
+oc new-build --name=jenkins-slave-appdev --dockerfile=$'FROM docker.io/openshift/jenkins-slave-maven-centos7:v3.9\nUSER root\nRUN yum -y install skopeo apb && \yum clean all\nUSER 1001' -n ${GUID}-jenkins
+
+# wait while jenkins slave is ready
+while : ; do
+	echo "Checking if Jenkins-app-slave is Ready..."
+	oc get pod -n ${GUID}-jenkins | grep 'slave' | grep "Completed"
+	if [ $? == "0" ] 
+		then 
+		echo 'jenkins-slave-appdev build completed'
+		break
+	else 
+		echo 'Waiting 10 seconds...'
+		sleep 10
+	fi
+done
+
+oc create configmap basic-config --from-literal="GUID=${GUID}" --from-literal="REPO=${REPO}" --from-literal="CLUSTER=${CLUSTER}"
+
+oc create -f Infrastructure/templates/mlbparks-bc.yaml -n ${GUID}-jenkins
+oc create -f Infrastructure/templates/nationalparks-bc.yaml -n ${GUID}-jenkins
+oc create -f Infrastructure/templates/parksmap-bc.yaml -n ${GUID}-jenkins
+
+oc set env bc/mlbparks-pipeline GUID=${GUID} REPO=${REPO} CLUSTER=${CLUSTER} -n ${GUID}-jenkins
+oc set env bc/nationalparks-pipeline GUID=${GUID} REPO=${REPO} CLUSTER=${CLUSTER} -n ${GUID}-jenkins
+oc set env bc/parksmap-pipeline GUID=${GUID} REPO=${REPO} CLUSTER=${CLUSTER} -n ${GUID}-jenkins
