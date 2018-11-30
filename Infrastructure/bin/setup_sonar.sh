@@ -27,7 +27,7 @@ oc rollout pause dc sonarqube
 oc expose service sonarqube
 # Create and configure persistent volumen for sonarqube
 echo "Creating and mounting PVC"
-oc create -f ../templates/pvc-sonar.yaml
+oc create -f ./Infrastructure/templates/pvc-sonar.yaml
 oc set volume dc/sonarqube --add --overwrite --name=sonarqube-volume-1 --mount-path=/opt/sonarqube/data/ --type persistentVolumeClaim --claim-name=sonarqube-pvc
 oc set resources dc/sonarqube --limits=memory=2Gi,cpu=2 --requests=memory=1Gi,cpu=1
 oc patch dc sonarqube --patch='{ "spec": { "strategy": { "type": "Recreate" }}}'

@@ -19,11 +19,11 @@ oc policy add-role-to-group system:image-puller system:serviceaccounts:${GUID}-p
 oc policy add-role-to-user edit system:serviceaccount:${GUID}-jenkins:jenkins -n ${GUID}-parks-prod
 oc policy add-role-to-user admin system:serviceaccount:gpte-jenkins:jenkins -n ${GUID}-parks-prod
 # create headless MongoDB service
-oc create -f ../templates/mongodb_internal.yaml
+oc create -f ./Infrastructure/templates/mongodb_internal.yaml
 # create regular MongoDB service
-oc create -f ../templates/mongodb.yaml
+oc create -f ./Infrastructure/templates/mongodb.yaml
 # create the stateful cluster of MongoDBs
-oc create -f ../templates/mongo_statefulset.yaml
+oc create -f ./Infrastructure/templates/mongo_statefulset.yaml
 # allows parksmap app to look for routes
 oc policy add-role-to-user view --serviceaccount=default
 

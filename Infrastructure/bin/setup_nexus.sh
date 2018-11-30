@@ -45,7 +45,7 @@ echo "configuring Nexus"
 oc patch deploymentconfig/nexus3 --patch='{"spec":{"strategy":{"type":"Recreate"}}}'
 oc set resources deploymentconfig/nexus3 --limits=memory=2Gi --requests=memory=1Gi
 # Use yaml file to create persistent volume and mount it at /nexus-data
-oc create -f ../templates/pvc-nexus.yaml
+oc create -f ./Infrastructure/templates/pvc-nexus.yaml
 oc set volume deploymentconfig/nexus3
 oc set volume deploymentconfig/nexus3 --add --overwrite --name=nexus3-volume-1 --mount-path=/nexus-data/ --type persistentVolumeClaim --claim-name=nexus-pvc
 # Set liveness and readiness probe
