@@ -49,17 +49,33 @@ oc create -f ../templates/pvc-nexus.yaml
 oc set volume deploymentconfig/nexus3
 oc set volume deploymentconfig/nexus3 --add --overwrite --name=nexus3-volume-1 --mount-path=/nexus-data/ --type persistentVolumeClaim --claim-name=nexus-pvc
 # Set liveness and readiness probe
-oc set probe deploymentconfig/nexus3 --liveness --failure-threshold 3 --initial-delay-seconds 300 -- echo ok
-oc set probe deploymentconfig/nexus3 --readiness --failure-threshold 3 --initial-delay-seconds 300 --get-url= http://:8081/repository/maven-public/
+oc set probe deploymentconfig/nexus3 --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok --periodSeconds 10 --successThreshold 1 --timeoutSeconds 1
+oc set probe deploymentconfig/nexus3 --readiness --failure-threshold 3 --initial-delay-seconds 60 --get-url= http://:8081/repository/maven-public/ --periodSeconds 10 --successThreshold 1 --timeoutSeconds 1
 # Expose the container registry
 echo "exposing Nexus container"
 oc expose deploymentconfig nexus3 --port=5000 --name=nexus-registry
 oc create route edge nexus-registry --service=nexus-registry --port=5000
 oc rollout resume deploymentconfig nexus3
-echo "Done!"
+
+# Wait for Nexus to be ready for repo setup
+
+while : ; do
+	echo "Checking if Nexus is Ready..."
+    oc get pod -n ${GUID}-nexus | grep '\-1\-' | grep -v deploy | grep "1/1"
+    if [ $? == "1" ] 
+      then 
+      echo "Sleeping 10 seconds."
+        sleep 10
+      else 
+        break 
+    fi
+done
+
+oc get routes -n $GUID-nexus
+sleep 60
 
 ## Once Nexus is deployed, following script can be used to setup the Nexus repository
-#curl -o setup_nexus3.sh -s https://raw.githubusercontent.com/wkulhanek/ocp_advanced_development_resources/master/nexus/setup_nexus3.sh
-#chmod +x setup_nexus3.sh
-#./setup_nexus3.sh admin admin123 http://$(oc get route nexus3 --template='{{ .spec.host }}')
-#rm setup_nexus3.sh
+curl -o setup_nexus3.sh -s https://raw.githubusercontent.com/wkulhanek/ocp_advanced_development_resources/master/nexus/setup_nexus3.sh
+chmod +x setup_nexus3.sh
+./setup_nexus3.sh admin admin123 http://$(oc get route nexus3 --template='{{ .spec.host }}')
+rm setup_nexus3.sh

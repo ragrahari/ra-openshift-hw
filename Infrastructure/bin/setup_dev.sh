@@ -36,6 +36,8 @@ oc expose svc/mlbparks
 # Readiness and liveness probes
 oc set probe dc/mlbparks --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=60
 oc set probe dc/mlbparks --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok
+oc set probe dc/mlbparks --readiness --get-url=http://:8080/ --initial-delay-seconds=30 --timeout-seconds=1 -n ${GUID}-tasks-dev
+oc set probe dc/mlbparks --liveness --get-url=http://:8080/ --initial-delay-seconds=30 --timeout-seconds=1 -n ${GUID}-tasks-dev
 
 #----- Commands for NationalParks app -----#
 oc new-build --binary=true --name="nationalparks" redhat-openjdk18-openshift:1.2 -n ${GUID}-parks-dev
