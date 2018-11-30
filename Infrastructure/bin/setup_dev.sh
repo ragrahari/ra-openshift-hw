@@ -17,7 +17,9 @@ oc policy add-role-to-user edit system:serviceaccount:${GUID}-jenkins:jenkins -n
 oc policy add-role-to-user admin system:serviceaccount:gpte-jenkins:jenkins -n ${GUID}-parks-dev
 #----- Commands for MLBParks app -----
 oc new-build --binary=true --name="mlbparks" jboss-eap70-openshift:1.6 -n ${GUID}-parks-dev
+sleep 5
 oc new-app ${GUID}-parks-dev/mlbparks:0.0-0 --name=mlbparks --allow-missing-imagestream-tags=true -l type=parksmap-backend -n ${GUID}-parks-dev
+sleep 10
 # Create a MongoDB configMap 
 oc create configmap mlbparks-config \
  --from-literal=DB_HOST=mongodb \
@@ -31,6 +33,7 @@ oc create configmap mlbparks-config \
 oc set env --from=configmap/mlbparks-config dc/mlbparks
 oc set triggers dc/mlbparks --remove-all
 # expose the deployment config and service
+sleep 10
 oc expose dc/mlbparks --port 8080
 oc expose svc/mlbparks
 # Readiness and liveness probes
@@ -39,7 +42,9 @@ oc set probe dc/mlbparks --liveness --failure-threshold 3 --initial-delay-second
 
 #----- Commands for NationalParks app -----#
 oc new-build --binary=true --name="nationalparks" redhat-openjdk18-openshift:1.2 -n ${GUID}-parks-dev
+sleep 5
 oc new-app ${GUID}-parks-dev/nationalparks:0.0-0 --name=nationalparks --allow-missing-imagestream-tags=true -l type=parksmap-backend -n ${GUID}-parks-dev
+sleep 10
 # Create a MongoDB configMap
 oc create configmap nationalparks-config \
  --from-literal=DB_HOST=mongodb \
@@ -53,6 +58,7 @@ oc create configmap nationalparks-config \
 oc set env --from=configmap/nationalparks-config dc/nationalparks
 #
 oc set triggers dc/nationalparks --remove-all
+sleep 10
 oc expose dc/nationalparks --port 8080
 oc expose svc/nationalparks
 # readiness and liveness probes
@@ -61,7 +67,9 @@ oc set probe dc/nationalparks --liveness --failure-threshold 3 --initial-delay-s
 
 #----- Commands for Parksmap app -----#
 oc new-build --binary=true --name="parksmap" redhat-openjdk18-openshift:1.2 -n ${GUID}-parks-dev
+sleep 5
 oc new-app ${GUID}-parks-dev/parksmap:0.0-0 --name=parksmap --allow-missing-imagestream-tags=true -n ${GUID}-parks-dev
+sleep 10
 # Create a MongoDB configMap
 oc create configmap parksmap-config \
  --from-literal=DB_HOST=mongodb \
@@ -77,6 +85,7 @@ oc set env --from=configmap/parksmap-config dc/parksmap
 oc policy add-role-to-user view --serviceaccount=default
 #
 oc set triggers dc/parksmap --remove-all
+sleep 10
 oc expose dc/parksmap --port 8080 -n ${GUID}-parks-dev
 oc expose svc/parksmap -n ${GUID}-parks-dev
 # Creating a placeholder to be updated by the pipeline: may not be needed

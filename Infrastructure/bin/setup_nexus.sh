@@ -38,6 +38,7 @@ oc project ${GUID}-nexus
 ##oc new-app sonatype/nexus3:latest
 echo "building new app using docker image"
 oc new-app docker.io/sonatype/nexus3:latest
+sleep 10
 oc expose svc nexus3
 oc rollout pause deploymentconfig nexus3
 # Setup "Recreate" deployment strategy and configure resource limits
@@ -52,6 +53,7 @@ oc set volume deploymentconfig/nexus3 --add --overwrite --name=nexus3-volume-1 -
 oc set probe deploymentconfig/nexus3 --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok --period-seconds 10 --success-threshold 1 --timeout-seconds 1
 oc set probe deploymentconfig/nexus3 --readiness --failure-threshold 3 --initial-delay-seconds 60 --get-url= http://:8081/repository/maven-public/ --period-seconds 10 --success-threshold 1 --timeout-seconds 1
 # Expose the container registry
+sleep 10
 echo "exposing Nexus container"
 oc expose deploymentconfig nexus3 --port=5000 --name=nexus-registry
 oc create route edge nexus-registry --service=nexus-registry --port=5000
