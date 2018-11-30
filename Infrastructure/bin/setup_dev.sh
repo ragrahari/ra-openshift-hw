@@ -11,7 +11,7 @@ echo "Setting up Parks Development Environment in project ${GUID}-parks-dev"
 
 # Code to set up the parks development project.
 
-# oc project ${GUID}-parks-dev
+oc project ${GUID}-parks-dev
 # Grant the correct permissions to the Jenkins service account
 oc policy add-role-to-user edit system:serviceaccount:${GUID}-jenkins:jenkins -n ${GUID}-parks-dev
 oc policy add-role-to-user admin system:serviceaccount:gpte-jenkins:jenkins -n ${GUID}-parks-dev

@@ -30,10 +30,8 @@ echo "Setting up Nexus in project $GUID-nexus"
 # Ideally just calls a template
 # oc new-app -f ../templates/nexus.yaml --param .....
 
-### TO TEST ###
-
 # Use ${GUID}-nexus project
-# oc project ${GUID}-nexus
+oc project ${GUID}-nexus
 # Create the service using nexus3 image and expose the service
 ##oc new-app sonatype/nexus3:latest
 echo "building new app using docker image"
@@ -79,3 +77,4 @@ curl -o setup_nexus3.sh -s https://raw.githubusercontent.com/wkulhanek/ocp_advan
 chmod +x setup_nexus3.sh
 ./setup_nexus3.sh admin admin123 http://$(oc get route nexus3 --template='{{ .spec.host }}' -n ${GUID}-nexus)
 rm setup_nexus3.sh
+oc get routes -n $GUID-nexus

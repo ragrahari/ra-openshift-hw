@@ -12,7 +12,9 @@ echo "Setting up Parks Production Environment in project ${GUID}-parks-prod"
 # Code to set up the parks production project. It will need a StatefulSet MongoDB, and two applications each (Blue/Green) for NationalParks, MLBParks and Parksmap.
 # The Green services/routes need to be active initially to guarantee a successful grading pipeline run.
 
-# oc project ${GUID}-parks-prod
+sleep 300
+
+oc project ${GUID}-parks-prod
 # Grant the correct permissions to pull images from the development project
 oc policy add-role-to-group system:image-puller system:serviceaccounts:${GUID}-parks-prod -n ${GUID}-parks-dev
 # Grant the correct permissions to the Jenkins service account
@@ -26,6 +28,19 @@ oc create -f ./Infrastructure/templates/mongodb.yaml -n ${GUID}-parks-prod
 oc create -f ./Infrastructure/templates/mongo_statefulset.yaml -n ${GUID}-parks-prod
 # allows parksmap app to look for routes
 oc policy add-role-to-user view --serviceaccount=default -n ${GUID}-parks-prod
+
+sleep 10
+while : ; do
+    oc get pod -n ${GUID}-parks-prod | grep -v deploy | grep "1/1"
+    echo "Checking if MongoDB is Ready..."
+    if [ $? == "1" ] 
+      then 
+      echo "Wait 10 seconds..."
+        sleep 10
+      else 
+        break 
+    fi
+done
 
 #----- Commands for MLBParks app -----#
 # Green
