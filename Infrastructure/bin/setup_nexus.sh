@@ -30,6 +30,8 @@ echo "Setting up Nexus in project $GUID-nexus"
 # Ideally just calls a template
 # oc new-app -f ../templates/nexus.yaml --param .....
 
+sleep 60
+
 # Use ${GUID}-nexus project
 oc project ${GUID}-nexus
 # Create the service using nexus3 image and expose the service
@@ -56,7 +58,7 @@ oc create route edge nexus-registry --service=nexus-registry --port=5000 -n ${GU
 oc rollout resume deploymentconfig nexus3 -n ${GUID}-nexus
 
 # Wait for Nexus to be ready for repo setup
-
+sleep 60
 while : ; do
 	echo "Checking if Nexus is Ready..."
     oc get pod -n ${GUID}-nexus | grep '\-1\-' | grep -v deploy | grep "1/1"

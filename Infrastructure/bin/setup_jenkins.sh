@@ -30,6 +30,7 @@ echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cl
 oc project ${GUID}-jenkins
 # Create persistent volume
 oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=2Gi --param VOLUME_CAPACITY=4Gi -n ${GUID}-jenkins
+sleep 60
 ## Moving image to Openshift registry.
 #skopeo copy --dest-tls-verify=false --dest-creds=admin:admin123 docker://docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9 docker://$(oc get route nexus-registry -n ${GUID}-nexus --template='{{ .spec.host}}')/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
 ## -- OR -- ##
@@ -43,7 +44,7 @@ while : ; do
     oc get pod -n ${GUID}-jenkins | grep -v deploy | grep "1/1"
     if [ $? == "1" ] 
       then 
-      echo "Waiting 10 seconds..."
+        echo "Waiting 10 seconds..."
         sleep 10
       else 
         break 
@@ -58,10 +59,10 @@ while : ; do
 	echo "Checking if Jenkins-app-slave is Ready..."
 	oc get pod -n ${GUID}-jenkins | grep 'slave' | grep "Completed"
 	if [ $? == "0" ] 
-		then 
+      then 
 		echo 'jenkins-slave-appdev build completed'
 		break
-	else 
+	  else 
 		echo 'Waiting 10 seconds...'
 		sleep 10
 	fi

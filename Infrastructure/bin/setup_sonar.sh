@@ -14,7 +14,7 @@ echo "Setting up Sonarqube in project $GUID-sonarqube"
 # Code to set up the SonarQube project.
 # Ideally just calls a template
 # oc new-app -f ../templates/sonarqube.yaml --param .....
-
+sleep 60
 oc project ${GUID}-sonarqube
 echo "Deploying persistent postgre database"
 oc new-app --template=postgresql-persistent --param POSTGRESQL_USER=sonar --param POSTGRESQL_PASSWORD=sonar --param POSTGRESQL_DATABASE=sonar --param VOLUME_CAPACITY=4Gi --labels=app=sonarqube_db -n ${GUID}-sonarqube
