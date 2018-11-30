@@ -49,8 +49,8 @@ oc create -f ./Infrastructure/templates/pvc-nexus.yaml
 oc set volume deploymentconfig/nexus3
 oc set volume deploymentconfig/nexus3 --add --overwrite --name=nexus3-volume-1 --mount-path=/nexus-data/ --type persistentVolumeClaim --claim-name=nexus-pvc
 # Set liveness and readiness probe
-oc set probe deploymentconfig/nexus3 --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok --successThreshold 1 --timeoutSeconds 1
-oc set probe deploymentconfig/nexus3 --readiness --failure-threshold 3 --initial-delay-seconds 60 --get-url= http://:8081/repository/maven-public/ --successThreshold 1 --timeoutSeconds 1
+oc set probe deploymentconfig/nexus3 --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok --period-seconds 10 --success-threshold 1 --timeout-seconds 1
+oc set probe deploymentconfig/nexus3 --readiness --failure-threshold 3 --initial-delay-seconds 60 --get-url= http://:8081/repository/maven-public/ --period-seconds 10 --success-threshold 1 --timeout-seconds 1
 # Expose the container registry
 echo "exposing Nexus container"
 oc expose deploymentconfig nexus3 --port=5000 --name=nexus-registry
