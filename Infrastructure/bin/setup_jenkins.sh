@@ -27,12 +27,9 @@ echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cl
 # * GUID: the GUID used in all the projects
 # * CLUSTER: the base url of the cluster used (e.g. na39.openshift.opentlc.com)
 
-### TO TEST ###
-
-oc project ${GUID}-jenkins
+# oc project ${GUID}-jenkins
 # Create persistent volume
-oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=2Gi --param VOLUME_CAPACITY=4Gi
-sleep 10
+oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=2Gi --param VOLUME_CAPACITY=4Gi -n ${GUID}-jenkins
 ## Moving image to Openshift registry.
 #skopeo copy --dest-tls-verify=false --dest-creds=admin:admin123 docker://docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9 docker://$(oc get route nexus-registry -n ${GUID}-nexus --template='{{ .spec.host}}')/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
 ## -- OR -- ##
