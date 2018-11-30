@@ -14,7 +14,7 @@ echo "Setting up Sonarqube in project $GUID-sonarqube"
 # Code to set up the SonarQube project.
 # Ideally just calls a template
 # oc new-app -f ../templates/sonarqube.yaml --param .....
-sleep 60
+sleep 10
 oc project ${GUID}-sonarqube
 echo "Deploying persistent postgre database"
 oc new-app --template=postgresql-persistent --param POSTGRESQL_USER=sonar --param POSTGRESQL_PASSWORD=sonar --param POSTGRESQL_DATABASE=sonar --param VOLUME_CAPACITY=4Gi --labels=app=sonarqube_db -n ${GUID}-sonarqube
@@ -34,3 +34,15 @@ oc set probe dc/sonarqube --liveness --failure-threshold 3 --initial-delay-secon
 oc set probe dc/sonarqube --readiness --failure-threshold 3 --initial-delay-seconds 20 --get-url= http://:9000/about --period-seconds 10 --success-threshold 1 --timeout-seconds 1 -n ${GUID}-sonarqube
 # Expose the service
 oc rollout resume dc sonarqube -n ${GUID}-sonarqube
+
+while : ; do
+	echo "Checking if Nexus repositories are ready"
+    if [ $(curl -s -o /dev/null -w "%{http_code}" http://$(oc get route sonarqube --template='{{ .spec.host }}')) -eq 200 ] 
+      then 
+        break
+      else
+        echo "Sleeping 10 seconds."
+        sleep 10 
+    fi
+done
+echo "SonarQube setup complete!"

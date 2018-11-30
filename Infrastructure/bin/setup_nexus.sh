@@ -30,7 +30,7 @@ echo "Setting up Nexus in project $GUID-nexus"
 # Ideally just calls a template
 # oc new-app -f ../templates/nexus.yaml --param .....
 
-#sleep 60
+sleep 10
 
 # Use ${GUID}-nexus project
 oc project ${GUID}-nexus
