@@ -32,7 +32,7 @@ oc set volume dc/sonarqube --add --overwrite --name=sonarqube-volume-1 --mount-p
 oc set resources dc/sonarqube --limits=memory=2Gi,cpu=2 --requests=memory=1Gi,cpu=1
 oc patch dc sonarqube --patch='{ "spec": { "strategy": { "type": "Recreate" }}}'
 # Set liveness and readiness probe
-oc set probe dc/sonarqube --liveness --failure-threshold 3 --initial-delay-seconds 40 -- echo ok --periodSeconds 10 --successThreshold 1 --timeoutSeconds 1
-oc set probe dc/sonarqube --readiness --failure-threshold 3 --initial-delay-seconds 20 --get-url= http://:9000/about --periodSeconds 10 --successThreshold 1 --timeoutSeconds 1
+oc set probe dc/sonarqube --liveness --failure-threshold 3 --initial-delay-seconds 40 -- echo ok --successThreshold 1 --timeoutSeconds 1
+oc set probe dc/sonarqube --readiness --failure-threshold 3 --initial-delay-seconds 20 --get-url= http://:9000/about --successThreshold 1 --timeoutSeconds 1
 # Expose the service
 oc rollout resume dc sonarqube

@@ -33,7 +33,6 @@ oc project ${GUID}-jenkins
 # Create persistent volume
 oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=2Gi --param VOLUME_CAPACITY=4Gi
 ## Moving image to Openshift registry.
-## NOTE: if this image was not created during the lab, set it up before doing following
 #skopeo copy --dest-tls-verify=false --dest-creds=admin:admin123 docker://docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9 docker://$(oc get route nexus-registry -n ${GUID}-nexus --template='{{ .spec.host}}')/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
 ## -- OR -- ##
 #sudo docker login -u ragrahari-crossvale.com -p $(oc whoami -t) docker-registry-default.apps.na39.openshift.opentlc.com
