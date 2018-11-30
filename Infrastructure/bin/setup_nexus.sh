@@ -30,7 +30,7 @@ echo "Setting up Nexus in project $GUID-nexus"
 # Ideally just calls a template
 # oc new-app -f ../templates/nexus.yaml --param .....
 
-sleep 60
+#sleep 60
 
 # Use ${GUID}-nexus project
 oc project ${GUID}-nexus
@@ -58,7 +58,7 @@ oc create route edge nexus-registry --service=nexus-registry --port=5000 -n ${GU
 oc rollout resume deploymentconfig nexus3 -n ${GUID}-nexus
 
 # Wait for Nexus to be ready for repo setup
-sleep 60
+#sleep 60
 while : ; do
 	echo "Checking if Nexus is Ready..."
     oc get pod -n ${GUID}-nexus | grep '\-1\-' | grep -v deploy | grep "1/1"
@@ -72,7 +72,18 @@ while : ; do
 done
 
 oc get routes -n $GUID-nexus
-sleep 60
+sleep 10
+
+while : ; do
+	echo "Checking if Nexus repositories are ready"
+    if [ $(curl -s -o /dev/null -w "%{http_code}" http://$(oc get route nexus3 --template='{{ .spec.host }}')) -eq 200 ] 
+      then 
+        break
+      else
+        echo "Sleeping 10 seconds."
+        sleep 10 
+    fi
+done
 
 ## Once Nexus is deployed, following script can be used to setup the Nexus repository
 curl -o setup_nexus3.sh -s https://raw.githubusercontent.com/wkulhanek/ocp_advanced_development_resources/master/nexus/setup_nexus3.sh
