@@ -36,7 +36,7 @@ oc expose dc/mlbparks --port 8080 -n ${GUID}-parks-dev
 oc expose svc/mlbparks -n ${GUID}-parks-dev
 # Readiness and liveness probes
 oc set probe dc/mlbparks --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=60 --timeout-seconds=1 -n ${GUID}-parks-dev
-oc set probe dc/mlbparks --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok --timeout-seconds=1 -n ${GUID}-parks-dev
+oc set probe dc/mlbparks --liveness --failure-threshold=3 --initial-delay-seconds=60 -- echo ok --timeout-seconds=1 -n ${GUID}-parks-dev
 
 #----- Commands for NationalParks app -----#
 oc new-build --binary=true --name="nationalparks" redhat-openjdk18-openshift:1.2 -n ${GUID}-parks-dev
@@ -58,7 +58,7 @@ oc expose dc/nationalparks --port 8080 -n ${GUID}-parks-dev
 oc expose svc/nationalparks -n ${GUID}-parks-dev
 # readiness and liveness probes
 oc set probe dc/nationalparks --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=60 -n ${GUID}-parks-dev
-oc set probe dc/nationalparks --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok -n ${GUID}-parks-dev
+oc set probe dc/nationalparks --liveness --failure-threshold=3 --initial-delay-seconds=60 -- echo ok -n ${GUID}-parks-dev
 
 #----- Commands for Parksmap app -----#
 oc new-build --binary=true --name="parksmap" redhat-openjdk18-openshift:1.2 -n ${GUID}-parks-dev
@@ -80,8 +80,6 @@ oc policy add-role-to-user view --serviceaccount=default -n ${GUID}-parks-dev
 oc set triggers dc/parksmap --remove-all -n ${GUID}-parks-dev
 oc expose dc/parksmap --port 8080 -n ${GUID}-parks-dev
 oc expose svc/parksmap -n ${GUID}-parks-dev
-# Creating a placeholder to be updated by the pipeline: may not be needed
-# oc create configmap tasks-config --from-literal="application-users.properties=Placeholder" --from-literal="application-roles.properties=Placeholder" -n ${GUID}-parks-dev
 # readiness and liveness probes
 oc set probe dc/parksmap --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=60 -n ${GUID}-parks-dev
-oc set probe dc/parksmap --liveness --failure-threshold 3 --initial-delay-seconds 60 -- echo ok -n ${GUID}-parks-dev
+oc set probe dc/parksmap --liveness --failure-threshold=3 --initial-delay-seconds=60 -- echo ok -n ${GUID}-parks-dev
