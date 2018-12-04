@@ -1,5 +1,6 @@
-GUID=eed2
+GUID=0856
 USER=ragrahari-crossvale.com
+REPO=https://github.com/ragrahari/ra-openshift-hw.git
 
 Step 1: cleanup
 	./cleanup.sh ${GUID}

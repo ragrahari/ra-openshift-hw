@@ -1,16 +1,15 @@
 #!/bin/bash
 # Create all Homework Projects
-if [ "$#" -ne 3 ]; then
+if [ "$#" -ne 2 ]; then
     echo "Usage:"
-    echo "  $0 GUID USER FROM_JENKINS"
-	echo "example: setup_projects.sh ra ragrahari false"
+    echo "  $0 GUID USER"
+	echo "example: setup_projects.sh ra ragrahari"
 	sleep 3
     exit 1
 fi
 
 GUID=$1
 USER=$2
-FROM_JENKINS=$3
 
 echo "Creating all Homework Projects for GUID=${GUID} and USER=${USER}"
 oc new-project ${GUID}-nexus        --display-name="${GUID} AdvDev Homework Nexus"
