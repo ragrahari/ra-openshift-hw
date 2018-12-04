@@ -146,7 +146,7 @@ podTemplate(
    }
 
    stage('Switch over to new Version') {
-     input "Switch Production?"
+     echo "Switch to Production..."
      //echo "Updating the type from active to inactive on ${activeApp}"
      //sh "oc patch dc ${activeApp} --patch=\'{ \"metadata\": { \"labels\": { \"type\": \"parksmap-backend-inactive\" }}}\' -n ${GUID}-parks-prod"
 
