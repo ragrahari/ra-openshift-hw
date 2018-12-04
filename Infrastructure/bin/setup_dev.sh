@@ -11,11 +11,12 @@ echo "Setting up Parks Development Environment in project ${GUID}-parks-dev"
 
 # Code to set up the parks development project.
 
+sleep 60
+
 oc project ${GUID}-parks-dev
 # Grant the correct permissions to the Jenkins service account
 oc policy add-role-to-user edit system:serviceaccount:${GUID}-jenkins:jenkins -n ${GUID}-parks-dev
 oc policy add-role-to-user admin system:serviceaccount:gpte-jenkins:jenkins -n ${GUID}-parks-dev
-oc policy add-role-to-user admin system:serviceaccount:grading-jenkins:jenkins -n ${GUID}-parks-dev
 #----- Commands for MLBParks app -----
 oc new-build --binary=true --name="mlbparks" jboss-eap70-openshift:1.6 -n ${GUID}-parks-dev
 oc new-app ${GUID}-parks-dev/mlbparks:0.0-0 --name=mlbparks --allow-missing-imagestream-tags=true -l type=parksmap-backend -n ${GUID}-parks-dev

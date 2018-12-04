@@ -30,8 +30,6 @@ echo "Setting up Nexus in project $GUID-nexus"
 # Ideally just calls a template
 # oc new-app -f ../templates/nexus.yaml --param .....
 
-sleep 10
-
 # Use ${GUID}-nexus project
 oc project ${GUID}-nexus
 # Create the service using nexus3 image and expose the service
@@ -76,7 +74,7 @@ sleep 10
 
 while : ; do
 	echo "Checking if Nexus repositories are ready"
-    if [ $(curl -s -o /dev/null -w "%{http_code}" http://$(oc get route nexus3 --template='{{ .spec.host }}')) -eq 200 ] 
+    if [ $(curl -s -o /dev/null -w "%{http_code}" http://$(oc get route nexus3 --template='{{ .spec.host }}' -n $GUID-nexus)) -eq 200 ] 
       then 
         break
       else
