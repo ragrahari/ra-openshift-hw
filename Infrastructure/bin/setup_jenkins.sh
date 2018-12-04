@@ -29,14 +29,12 @@ echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cl
 
 oc project ${GUID}-jenkins
 # Create persistent volume
-oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=2Gi --param VOLUME_CAPACITY=4Gi -n ${GUID}-jenkins
-sleep 60
-## Moving image to Openshift registry.
-#skopeo copy --dest-tls-verify=false --dest-creds=admin:admin123 docker://docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9 docker://$(oc get route nexus-registry -n ${GUID}-nexus --template='{{ .spec.host}}')/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
-## -- OR -- ##
-#sudo docker login -u ragrahari-crossvale.com -p $(oc whoami -t) docker-registry-default.apps.na39.openshift.opentlc.com
-
-#sudo docker push docker-registry-default.apps.na39.openshift.opentlc.com/${GUID}-jenkins/jenkins-slave-maven-appdev:v3.9
+oc new-app jenkins-persistent --param ENABLE_OAUTH=true --param MEMORY_LIMIT=3Gi --param VOLUME_CAPACITY=6Gi -n ${GUID}-jenkins
+oc rollout pause dc jenkins -n ${GUID}-jenkins
+oc set resources dc jenkins --limits=memory=4Gi,cpu=2 --requests=memory=2Gi,cpu=1 -n ${GUID}-jenkins
+oc set probe dc/jenkins --readiness --failure-threshold=3 --initial-delay-seconds=120 --get-url=http://:8080/login --period-seconds=10 --success-threshold=1 --timeout-seconds=600 -n ${GUID}-jenkins
+oc set probe dc/jenkins --liveness --failure-threshold=3 --initial-delay-seconds=120 --get-url=http://:8080/login --period-seconds=10 --success-threshold=1 --timeout-seconds=600 -n ${GUID}-jenkins
+oc rollout resume dc jenkins -n ${GUID}-jenkins
 
 # wait while jenkins is ready
 while : ; do
@@ -70,9 +68,9 @@ done
 
 oc create configmap basic-config --from-literal="GUID=${GUID}" --from-literal="REPO=${REPO}" --from-literal="CLUSTER=${CLUSTER}"
 
-oc create -f Infrastructure/templates/mlbparks-bc.yaml -n ${GUID}-jenkins
-oc create -f Infrastructure/templates/nationalparks-bc.yaml -n ${GUID}-jenkins
-oc create -f Infrastructure/templates/parksmap-bc.yaml -n ${GUID}-jenkins
+oc create -f Infrastructure/templates/bc-mlbparks.yaml -n ${GUID}-jenkins
+oc create -f Infrastructure/templates/bc-nationalparks.yaml -n ${GUID}-jenkins
+oc create -f Infrastructure/templates/bc-parksmap.yaml -n ${GUID}-jenkins
 
 oc set env bc/mlbparks-pipeline GUID=${GUID} REPO=${REPO} CLUSTER=${CLUSTER} -n ${GUID}-jenkins
 oc set env bc/nationalparks-pipeline GUID=${GUID} REPO=${REPO} CLUSTER=${CLUSTER} -n ${GUID}-jenkins
