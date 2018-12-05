@@ -77,7 +77,7 @@ oc new-app ${GUID}-parks-dev/mlbparks --name=mlbparks-blue --allow-missing-image
 oc set resources dc/mlbparks-blue --limits=memory=512Mi,cpu=250m -n ${GUID}-parks-prod
 oc set triggers dc/mlbparks-blue --remove-all -n ${GUID}-parks-prod
 oc set env --from=configmap/mlbparks-blue-config dc/mlbparks-blue -n ${GUID}-parks-prod
-#oc expose dc/mlbparks-blue --port 8080 -n ${GUID}-parks-prod
+oc expose dc/mlbparks-blue --port 8080 -n ${GUID}-parks-prod
 #oc expose svc/mlbparks-blue --name=mlbparks -n ${GUID}-parks-prod
 # Probes for blue deployment
 oc set probe dc/mlbparks-blue --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=15 -n ${GUID}-parks-prod
@@ -117,7 +117,7 @@ oc set probe dc/nationalparks-green --liveness --failure-threshold 3 --initial-d
 oc new-app ${GUID}-parks-dev/nationalparks --name=nationalparks-blue --allow-missing-imagestream-tags=true -l type=parksmap-backend-inactive -n ${GUID}-parks-prod
 oc set triggers dc/nationalparks-blue --remove-all -n ${GUID}-parks-prod
 oc set env --from=configmap/nationalparks-blue-config dc/nationalparks-blue -n ${GUID}-parks-prod
-#oc expose dc/nationalparks-blue --port=8080 -n ${GUID}-parks-prod
+oc expose dc/nationalparks-blue --port=8080 -n ${GUID}-parks-prod
 #oc expose svc/nationalparks-blue --name=nationalparks -n ${GUID}-parks-prod
 # Probes for blue deployment
 oc set probe dc/nationalparks-blue --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=30 -n ${GUID}-parks-prod
@@ -135,7 +135,7 @@ oc set probe dc/parksmap-green --liveness --failure-threshold 3 --initial-delay-
 # Blue
 oc new-app ${GUID}-parks-dev/parksmap --name=parksmap-blue --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
 oc set triggers dc/parksmap-blue --remove-all -n ${GUID}-parks-prod
-#oc expose dc/parksmap-blue --port=8080 -n ${GUID}-parks-prod
+oc expose dc/parksmap-blue --port=8080 -n ${GUID}-parks-prod
 #oc expose svc/parksmap-blue --name=parksmap -n ${GUID}-parks-prod
 # Probes
 oc set probe dc/parksmap-blue --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=15 -n ${GUID}-parks-prod
