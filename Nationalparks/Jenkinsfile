@@ -59,6 +59,8 @@ podTemplate(
 		echo "Running Unit Tests"
 		sh "${mvnCmd} test"
 	}
+    
+    sleep 240;
 
 	// Using Maven call SonarQube for Code Analysis
 	stage('Code Analysis') {

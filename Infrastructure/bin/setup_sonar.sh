@@ -26,10 +26,10 @@ oc expose service sonarqube -n ${GUID}-sonarqube
 echo "Creating and mounting PVC"
 oc create -f ./Infrastructure/templates/pvc-sonar.yaml -n ${GUID}-sonarqube
 oc set volume dc/sonarqube --add --overwrite --name=sonarqube-volume-1 --mount-path=/opt/sonarqube/data/ --type persistentVolumeClaim --claim-name=sonarqube-pvc -n ${GUID}-sonarqube
-oc set resources dc/sonarqube --limits=memory=2Gi,cpu=2 --requests=memory=1Gi,cpu=1 -n ${GUID}-sonarqube
+oc set resources dc/sonarqube --limits=memory=4Gi,cpu=2 --requests=memory=2Gi,cpu=1 -n ${GUID}-sonarqube
 oc patch dc sonarqube --patch='{ "spec": { "strategy": { "type": "Recreate" }}}' -n ${GUID}-sonarqube
 # Set liveness and readiness probe
-oc set probe dc/sonarqube --liveness --failure-threshold=3 --initial-delay-seconds=60 --get-url=http://:9000/about/ --period-seconds=10 --success-threshold=1 --timeout-seconds=420 -n ${GUID}-sonarqube
+oc set probe dc/sonarqube --liveness --failure-threshold=3 --initial-delay-seconds=60 -- echo ok --period-seconds=10 --success-threshold=1 --timeout-seconds=420 -n ${GUID}-sonarqube
 oc set probe dc/sonarqube --readiness --failure-threshold=3 --initial-delay-seconds=60 --get-url=http://:9000/about/ --period-seconds=10 --success-threshold=1 --timeout-seconds=420  -n ${GUID}-sonarqube
 # Expose the service
 oc rollout resume dc sonarqube -n ${GUID}-sonarqube
