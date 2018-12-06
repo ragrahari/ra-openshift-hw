@@ -65,20 +65,20 @@ podTemplate(
 	// Using Maven call SonarQube for Code Analysis
 	stage('Code Analysis') {
 		echo "Running Code Analysis"
-		sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube-${GUID}-sonarqube.apps.na39.openshift.opentlc.com -Dsonar.projectName=${JOB_BASE_NAME}-${devTag}"
+		sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube-${GUID}-sonarqube.apps.${CLUSTER} -Dsonar.projectName=${JOB_BASE_NAME}-${devTag}"
 
    }
 
    // Publish the built jar file to Nexus
    stage('Publish to Nexus') {
        echo "Publish to Nexus"
-       sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3-${GUID}-nexus.apps.na39.openshift.opentlc.com/repository/releases"
+       sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3-${GUID}-nexus.apps.${CLUSTER}/repository/releases"
    }
 
    // Build the OpenShift Image in OpenShift and tag it.
    stage('Build and Tag OpenShift Image') {
        echo "Building OpenShift container image tasks:${devTag}"
-       sh "oc start-build ${artifactId} --from-file=http://nexus3-${GUID}-nexus.apps.na39.openshift.opentlc.com/repository/releases/com/openshift/evg/roadshow/${artifactId}/${version}/${artifactId}-${version}.jar --follow -n ${GUID}-parks-dev"
+       sh "oc start-build ${artifactId} --from-file=http://nexus3-${GUID}-nexus.${CLUSTER}/repository/releases/com/openshift/evg/roadshow/${artifactId}/${version}/${artifactId}-${version}.jar --follow -n ${GUID}-parks-dev"
        openshiftTag alias: 'false', destStream: "${artifactId}", destTag: devTag, destinationNamespace: '${GUID}-parks-dev', namespace: '${GUID}-parks-dev', srcStream: "${artifactId}", srcTag: 'latest', verbose: 'false'
    }
 

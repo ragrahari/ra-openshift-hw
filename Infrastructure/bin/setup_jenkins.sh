@@ -3,7 +3,7 @@
 if [ "$#" -ne 3 ]; then
     echo "Usage:"
     echo "  $0 GUID REPO CLUSTER"
-    echo "  Example: $0 wkha https://github.com/wkulhanek/ParksMap na39.openshift.opentlc.com"
+    echo "  Example: $0 wkha https://github.com/wkulhanek/ParksMap na311.openshift.opentlc.com"
 	sleep 5
     exit 1
 fi
