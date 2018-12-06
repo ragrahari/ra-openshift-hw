@@ -50,7 +50,6 @@ oc create configmap mlbparks-green-config \
  --from-literal=DB_PORT=27017 \
  --from-literal=DB_USERNAME=mongodb \
  --from-literal=DB_PASSWORD=mongodb \
- --from-literal=DB_NAME=parks \
  --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="MLB Parks (Green)" \
  -n ${GUID}-parks-prod
@@ -60,7 +59,6 @@ oc create configmap mlbparks-blue-config \
  --from-literal=DB_PORT=27017 \
  --from-literal=DB_USERNAME=mongodb \
  --from-literal=DB_PASSWORD=mongodb \
- --from-literal=DB_NAME=parks \
  --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="MLB Parks (Blue)" \
  -n ${GUID}-parks-prod
@@ -89,7 +87,6 @@ oc create configmap nationalparks-green-config \
  --from-literal=DB_PORT=27017 \
  --from-literal=DB_USERNAME=mongodb \
  --from-literal=DB_PASSWORD=mongodb \
- --from-literal=DB_NAME=parks \
  --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="National Parks (Green)" \
  -n ${GUID}-parks-prod
@@ -99,7 +96,6 @@ oc create configmap nationalparks-blue-config \
  --from-literal=DB_PORT=27017 \
  --from-literal=DB_USERNAME=mongodb \
  --from-literal=DB_PASSWORD=mongodb \
- --from-literal=DB_NAME=parks \
  --from-literal=DB_REPLICASET=rs0 \
  --from-literal=APPNAME="National Parks (Blue)" \
  -n ${GUID}-parks-prod
@@ -121,6 +117,27 @@ oc expose svc/nationalparks-green --name=nationalparks -n ${GUID}-parks-prod --l
 #oc expose svc/nationalparks-blue --name=nationalparks -n ${GUID}-parks-prod
 
 #----- Commands for parksmap app -----#
+
+#----- Commands for nationalparks app -----#
+# Green
+oc create configmap parksmap-green-config \
+ --from-literal=DB_HOST=mongodb \
+ --from-literal=DB_PORT=27017 \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_REPLICASET=rs0 \
+ --from-literal=APPNAME="ParksMap (Green)" \
+ -n ${GUID}-parks-prod
+# Blue
+oc create configmap parksmap-blue-config \
+ --from-literal=DB_HOST=mongodb \
+ --from-literal=DB_PORT=27017 \
+ --from-literal=DB_USERNAME=mongodb \
+ --from-literal=DB_PASSWORD=mongodb \
+ --from-literal=DB_REPLICASET=rs0 \
+ --from-literal=APPNAME="ParksMap (Blue)" \
+ -n ${GUID}-parks-prod
+ 
 # Green
 oc new-app ${GUID}-parks-dev/parksmap:0.0 --name=parksmap-green --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
 
@@ -165,7 +182,3 @@ oc set probe dc/parksmap-green --liveness --failure-threshold 3 --initial-delay-
 # Probes for parksmap blue deployment
 oc set probe dc/parksmap-blue --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=15 -n ${GUID}-parks-prod
 oc set probe dc/parksmap-blue --liveness --failure-threshold 3 --initial-delay-seconds 30 -- echo ok -n ${GUID}-parks-prod
-
-oc process -f ./Infrastructure/templates/prod-route.yaml -p=ROUTE_NAME=parksmap -p=SERVICE_NAME=parksmap-green -p=GUID=${GUID} -p=CLUSTER_NAME=$CLUSTER -l app=parksmap |oc create -f - -n ${GUID}-parks-prod
-
-
