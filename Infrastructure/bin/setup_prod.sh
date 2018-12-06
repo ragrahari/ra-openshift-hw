@@ -165,3 +165,7 @@ oc set probe dc/parksmap-green --liveness --failure-threshold 3 --initial-delay-
 # Probes for parksmap blue deployment
 oc set probe dc/parksmap-blue --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=15 -n ${GUID}-parks-prod
 oc set probe dc/parksmap-blue --liveness --failure-threshold 3 --initial-delay-seconds 30 -- echo ok -n ${GUID}-parks-prod
+
+oc process -f ./Infrastructure/templates/prod-route.yaml -p=ROUTE_NAME=parksmap -p=SERVICE_NAME=parksmap-green -p=GUID=${GUID} -p=CLUSTER_NAME=$CLUSTER -l app=parksmap |oc create -f - -n ${GUID}-parks-prod
+
+

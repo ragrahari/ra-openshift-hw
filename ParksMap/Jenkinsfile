@@ -146,13 +146,6 @@ podTemplate(
    }
 
    stage('Switch over to new Version') {
-     echo "Switch to Production..."
-     //echo "Updating the type from active to inactive on ${activeApp}"
-     //sh "oc patch dc ${activeApp} --patch=\'{ \"metadata\": { \"labels\": { \"type\": \"parksmap-backend-inactive\" }}}\' -n ${GUID}-parks-prod"
-
-     //echo "Updating the type from inactive to active on ${destApp}"
-     //sh "oc patch dc ${destApp} --patch=\'{ \"metadata\": { \"labels\": { \"type\": \"parksmap-backend\" }}}\' -n ${GUID}-parks-prod"
-
      echo "Switching Production application to ${destApp}."
      sh 'oc patch route parksmap -n ${GUID}-parks-prod -p \'{"spec":{"to":{"name":"' + destApp + '"}}}\''
      

@@ -1,0 +1,40 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: prod-route
+objects:
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    labels:
+      app: ${ROUTE_NAME}
+    name: ${ROUTE_NAME}
+  spec:
+    host: ${ROUTE_NAME}-${GUID}-parks-prod.apps.${CLUSTER_NAME}
+    port:
+      targetPort: 8080
+    to:
+      kind: Service
+      name: ${SERVICE_NAME}
+      weight: 100
+    wildcardPolicy: None
+parameters:
+- description: The Name of the frontend application to create route to (commong for blue & green deployments)
+  displayName: The route name
+  name: ROUTE_NAME
+  required: true
+- description: The Name of the Service the route will point to (alternating from blue to green)
+  displayName: The service name
+  name: SERVICE_NAME
+  required: true
+- description: The GUID prefix of the parks-dev project 
+  displayName: GUID 
+  name: GUID
+  required: true
+- description: The Name of the cluster the project is running in
+  displayName: The Cluster Name 
+  name: CLUSTER_NAME
+  required: true
