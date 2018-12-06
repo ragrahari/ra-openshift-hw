@@ -78,7 +78,7 @@ podTemplate(
    // Build the OpenShift Image in OpenShift and tag it.
    stage('Build and Tag OpenShift Image') {
        echo "Building OpenShift container image tasks:${devTag}"
-       sh "oc start-build ${artifactId} --from-file=http://nexus3-${GUID}-nexus.${CLUSTER}/repository/releases/com/openshift/evg/roadshow/${artifactId}/${version}/${artifactId}-${version}.jar --follow -n ${GUID}-parks-dev"
+       sh "oc start-build ${artifactId} --from-file=http://nexus3-${GUID}-nexus.apps.${CLUSTER}/repository/releases/com/openshift/evg/roadshow/${artifactId}/${version}/${artifactId}-${version}.jar --follow -n ${GUID}-parks-dev"
        openshiftTag alias: 'false', destStream: "${artifactId}", destTag: devTag, destinationNamespace: '${GUID}-parks-dev', namespace: '${GUID}-parks-dev', srcStream: "${artifactId}", srcTag: 'latest', verbose: 'false'
    }
 
