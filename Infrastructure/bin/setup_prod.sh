@@ -42,130 +42,74 @@ while : ; do
         break 
     fi
 done
+oc patch dc/mlbparks-blue  --patch='{ "spec": { "strategy": { "type": "Recreate" }}}' -n ${GUID}-parks-prod
+oc patch dc/mlbparks-green --patch='{ "spec": { "strategy": { "type": "Recreate" }}}' -n ${GUID}-parks-prod
 
-#----- Commands for MLBParks app -----#
-# Green
-oc create configmap mlbparks-green-config \
- --from-literal=DB_HOST=mongodb \
- --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=mongodb \
- --from-literal=DB_PASSWORD=mongodb \
- --from-literal=DB_NAME=parks \
- --from-literal=DB_REPLICASET=rs0 \
- --from-literal=APPNAME="MLB Parks (Green)" \
- -n ${GUID}-parks-prod
-# Blue
-oc create configmap mlbparks-blue-config \
- --from-literal=DB_HOST=mongodb \
- --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=mongodb \
- --from-literal=DB_PASSWORD=mongodb \
- --from-literal=DB_NAME=parks \
- --from-literal=DB_REPLICASET=rs0 \
- --from-literal=APPNAME="MLB Parks (Blue)" \
- -n ${GUID}-parks-prod
-# Green deployment : APPNAME="MLB Parks (Green)"
-oc new-app ${GUID}-parks-dev/mlbparks:0.0 --name=mlbparks-green --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
-
+oc set triggers dc/mlbparks-blue  --remove-all -n ${GUID}-parks-prod
 oc set triggers dc/mlbparks-green --remove-all -n ${GUID}-parks-prod
-oc set env dc/mlbparks-green --from=configmap/mlbparks-green-config -n ${GUID}-parks-prod
 
-# Blue Deployment : APPNAME="MLB Parks (Blue)"
-oc new-app ${GUID}-parks-dev/mlbparks:0.0 --name=mlbparks-blue --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+echo "Create Configmap MLBpark"
+oc create configmap mlbparks-config --from-literal="APPNAME=MLB Parks (Green)" \
+    --from-literal="DB_HOST=mongodb" \
+    --from-literal="DB_PORT=27017" \
+    --from-literal="DB_USERNAME=mongodb" \
+    --from-literal="DB_PASSWORD=mongodb" \
+    --from-literal="DB_NAME=parks" \
+    --from-literal="DB_REPLICASET=rs0" \
+    -n ${GUID}-parks-prod
 
-#oc set resources dc/mlbparks-blue --limits=memory=512Mi,cpu=250m -n ${GUID}-parks-prod
-oc set triggers dc/mlbparks-blue --remove-all -n ${GUID}-parks-prod
-oc set env dc/mlbparks-blue --from=configmap/mlbparks-blue-config -n ${GUID}-parks-prod
+oc set env dc/mlbparks-green --from=configmap/mlbparks-config -n ${GUID}-parks-prod
 
 oc expose dc/mlbparks-green --port 8080 -n ${GUID}-parks-prod
-oc expose dc/mlbparks-blue --port 8080 -n ${GUID}-parks-prod
-oc expose svc/mlbparks-green --name=mlbparks -n ${GUID}-parks-prod --labels="type=parksmap-backend"
-#oc expose svc/mlbparks-blue --name=mlbparks -n ${GUID}-parks-prod
 
-#----- Commands for nationalparks app -----#
-# Green
-oc create configmap nationalparks-green-config \
- --from-literal=DB_HOST=mongodb \
- --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=mongodb \
- --from-literal=DB_PASSWORD=mongodb \
- --from-literal=DB_NAME=parks \
- --from-literal=DB_REPLICASET=rs0 \
- --from-literal=APPNAME="National Parks (Green)" \
- -n ${GUID}-parks-prod
-# Blue
-oc create configmap nationalparks-blue-config \
- --from-literal=DB_HOST=mongodb \
- --from-literal=DB_PORT=27017 \
- --from-literal=DB_USERNAME=mongodb \
- --from-literal=DB_PASSWORD=mongodb \
- --from-literal=DB_NAME=parks \
- --from-literal=DB_REPLICASET=rs0 \
- --from-literal=APPNAME="National Parks (Blue)" \
- -n ${GUID}-parks-prod
-# Green Deployment
-oc new-app ${GUID}-parks-dev/nationalparks:0.0 --name=nationalparks-green --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+oc expose svc/mlbparks-green --name mlbparks -n ${GUID}-parks-prod
 
+
+echo "Setting up Nationalparks blue"
+oc new-app ${GUID}-parks-dev/nationalparks:latest --name=nationalparks-blue  --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+
+echo "Setting up Nationalparks green"
+oc new-app ${GUID}-parks-dev/nationalparks:latest --name=nationalparks-green --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+
+oc patch dc/nationalparks-blue  --patch='{ "spec": { "strategy": { "type": "Recreate" }}}' -n ${GUID}-parks-prod
+oc patch dc/nationalparks-green --patch='{ "spec": { "strategy": { "type": "Recreate" }}}' -n ${GUID}-parks-prod
+
+oc set triggers dc/nationalparks-blue  --remove-all -n ${GUID}-parks-prod
 oc set triggers dc/nationalparks-green --remove-all -n ${GUID}-parks-prod
-oc set env dc/nationalparks-green --from=configmap/nationalparks-green-config -n ${GUID}-parks-prod
 
-# Blue Deployment
-oc new-app ${GUID}-parks-dev/nationalparks:0.0 --name=nationalparks-blue --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+echo "Create config map national park"
+oc create configmap nationalparks-config --from-literal="APPNAME=National Parks (Green)" \
+    --from-literal="DB_HOST=mongodb" \
+    --from-literal="DB_PORT=27017" \
+    --from-literal="DB_USERNAME=mongodb" \
+    --from-literal="DB_PASSWORD=mongodb" \
+    --from-literal="DB_NAME=parks" \
+    --from-literal="DB_REPLICASET=rs0" \
+    -n ${GUID}-parks-prod
 
-oc set triggers dc/nationalparks-blue --remove-all -n ${GUID}-parks-prod
-oc set env dc/nationalparks-blue --from=configmap/nationalparks-blue-config -n ${GUID}-parks-prod
+oc set env dc/nationalparks-green --from=configmap/nationalparks-config -n ${GUID}-parks-prod
 
-oc expose dc/nationalparks-green --port=8080 -n ${GUID}-parks-prod
-oc expose dc/nationalparks-blue --port=8080 -n ${GUID}-parks-prod
-oc expose svc/nationalparks-green --name=nationalparks -n ${GUID}-parks-prod --labels="type=parksmap-backend"
-#oc expose svc/nationalparks-blue --name=nationalparks -n ${GUID}-parks-prod
+oc expose dc/nationalparks-green --port 8080 -n ${GUID}-parks-prod
 
-#----- Commands for parksmap app -----#
-# Green
-oc new-app ${GUID}-parks-dev/parksmap:0.0 --name=parksmap-green --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+oc expose svc/nationalparks-green --name nationalparks -n ${GUID}-parks-prod
 
+
+echo "Setting up Parksmap blue"
+oc new-app ${GUID}-parks-dev/parksmap:latest --name=parksmap-blue  --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+echo "Setting up Parksmap green"
+oc new-app ${GUID}-parks-dev/parksmap:latest --name=parksmap-green --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+
+oc patch dc/parksmap-blue  --patch='{ "spec": { "strategy": { "type": "Recreate" }}}' -n ${GUID}-parks-prod
+oc patch dc/parksmap-green --patch='{ "spec": { "strategy": { "type": "Recreate" }}}' -n ${GUID}-parks-prod
+
+oc set triggers dc/parksmap-blue  --remove-all -n ${GUID}-parks-prod
 oc set triggers dc/parksmap-green --remove-all -n ${GUID}-parks-prod
 
-oc set env dc/parksmap-green --from=configmap/parksmap-green-config -n ${GUID}-parks-prod
+echo "Create config map Parksmap"
+oc create configmap parksmap-config --from-literal="APPNAME=ParksMap (Green)" -n ${GUID}-parks-prod
 
-# Blue
-oc new-app ${GUID}-parks-dev/parksmap:0.0 --name=parksmap-blue --allow-missing-imagestream-tags=true -n ${GUID}-parks-prod
+oc set env dc/parksmap-green --from=configmap/parksmap-config -n ${GUID}-parks-prod
 
-oc set triggers dc/parksmap-blue --remove-all -n ${GUID}-parks-prod
+oc expose dc/parksmap-green --port 8080 -n ${GUID}-parks-prod
 
-oc set env dc/parksmap-blue --from=configmap/parksmap-blue-config -n ${GUID}-parks-prod
-
-oc expose dc/parksmap-green --port=8080 -n ${GUID}-parks-prod
-oc expose dc/parksmap-blue --port=8080 -n ${GUID}-parks-prod
-oc expose svc/parksmap-green --name=parksmap -n ${GUID}-parks-prod
-#oc expose svc/parksmap-blue --name=parksmap -n ${GUID}-parks-prod
-
-# Deployment hooks
-oc set deployment-hook dc/mlbparks-green  -n ${GUID}-parks-prod --post -c mlbparks-green --failure-policy=ignore -- curl http://mlbparks-green.${GUID}-parks-prod.svc.cluster.local:8080/ws/data/load/
-oc set deployment-hook dc/nationalparks-green  -n ${GUID}-parks-prod --post -c nationalparks-green --failure-policy=ignore -- curl http://nationalparks-green.${GUID}-parks-prod.svc.cluster.local:8080/ws/data/load/
-
-oc set deployment-hook dc/mlbparks-blue  -n ${GUID}-parks-prod --post -c mlbparks-blue --failure-policy=ignore -- curl http://mlbparks-blue.${GUID}-parks-prod.svc:8080/ws/data/load/
-oc set deployment-hook dc/nationalparks-blue  -n ${GUID}-parks-prod --post -c nationalparks-blue --failure-policy=ignore -- curl http://nationalparks-blue.${GUID}-parks-prod.svc:8080/ws/data/load/
-
-# Probes for mlbparks green deployment
-oc set probe dc/mlbparks-green --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=15 -n ${GUID}-parks-prod
-oc set probe dc/mlbparks-green --liveness --failure-threshold 3 --initial-delay-seconds 30 -- echo ok -n ${GUID}-parks-prod
-# Probes for mlbparks blue deployment
-oc set probe dc/mlbparks-blue --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=15 -n ${GUID}-parks-prod
-oc set probe dc/mlbparks-blue --liveness --failure-threshold 3 --initial-delay-seconds 30 -- echo ok -n ${GUID}-parks-prod
-# Probes for nationalparks green deployment
-oc set probe dc/nationalparks-green --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=30 -n ${GUID}-parks-prod
-oc set probe dc/nationalparks-green --liveness --failure-threshold 3 --initial-delay-seconds 30 -- echo ok -n ${GUID}-parks-prod
-# Probes for nationalparks blue deployment
-oc set probe dc/nationalparks-blue --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=30 -n ${GUID}-parks-prod
-oc set probe dc/nationalparks-blue --liveness --failure-threshold 3 --initial-delay-seconds 30 -- echo ok -n ${GUID}-parks-prod
-# Probes for parksmap green deployment
-oc set probe dc/parksmap-green --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=15 -n ${GUID}-parks-prod
-oc set probe dc/parksmap-green --liveness --failure-threshold 3 --initial-delay-seconds 30 -- echo ok -n ${GUID}-parks-prod
-# Probes for parksmap blue deployment
-oc set probe dc/parksmap-blue --readiness --get-url=http://:8080/ws/healthz/ --failure-threshold=3 --initial-delay-seconds=15 -n ${GUID}-parks-prod
-oc set probe dc/parksmap-blue --liveness --failure-threshold 3 --initial-delay-seconds 30 -- echo ok -n ${GUID}-parks-prod
-
-oc process -f ./Infrastructure/templates/prod-route.yaml -p=ROUTE_NAME=parksmap -p=SERVICE_NAME=parksmap-green -p=GUID=${GUID} -p=CLUSTER_NAME=$CLUSTER -l app=parksmap |oc create -f - -n ${GUID}-parks-prod
-
-
+oc expose svc/parksmap-green --name parksmap -n ${GUID}-parks-prod
